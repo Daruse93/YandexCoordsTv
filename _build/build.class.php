@@ -1,16 +1,16 @@
 <?php
 @ini_set('display_errors', 1);
 class siteBuilder {
-    
+
     public $config = array(
             'PACKAGE_NAME' => 'site',
-            'PACKAGE_VERSION' => '1.0.0',
+            'PACKAGE_VERSION' => '1.0.1',
             'PACKAGE_RELEASE' => 'beta',
             'BUILD_RESOLVERS' => array()
         );
     public $category_attr = array();
     public $modx;
-    
+
     public function __construct($PACKAGE_NAME, $PACKAGE_VERSION, $PACKAGE_RELEASE, $BUILD_RESOLVERS) {
         if (!empty($PACKAGE_NAME)) {
             $this->config['PACKAGE_NAME'] = $PACKAGE_NAME;
@@ -25,16 +25,16 @@ class siteBuilder {
             $this->config['BUILD_RESOLVERS'] = $BUILD_RESOLVERS;
         }
     }
-    
+
     public function build() {
         set_time_limit(0);
         header('Content-Type:text/html;charset=utf-8');
-        
+
         $builder = $this->prepareBuilder();
         $vehicle = $this->prepareVehicle($builder);
         $this->pack($builder);
     }
-    
+
     public function prepareBuilder() {
         /* define paths */
         $this->config['PACKAGE_ROOT'] = dirname(dirname(__FILE__)) . '/';
@@ -43,9 +43,9 @@ class siteBuilder {
         } else {
         	$this->config['MODX_BASE_PATH'] = dirname(dirname($this->config['PACKAGE_ROOT'])) . '/';
         }
-        
+
         $this->renameDirs();
-        
+
         /* modx connection */
         define('MODX_API_MODE', true);
         require $this->config['MODX_BASE_PATH'] . 'index.php';
@@ -58,7 +58,7 @@ class siteBuilder {
         if (!XPDO_CLI_MODE) {
         	echo '<pre>';
         }
-        
+
         /* create builder */
         $builder = new modPackageBuilder($this->modx);
         $builder->createPackage(strtolower($this->config['PACKAGE_NAME']),
@@ -67,7 +67,7 @@ class siteBuilder {
         $this->modx->log(modX::LOG_LEVEL_INFO, 'Created Transport Package.');
         return $builder;
     }
-    
+
     public function renameDirs() {
         /* assets */
         $assets_dir = $this->config['PACKAGE_ROOT'] . 'assets/components/' . strtolower($this->config['PACKAGE_NAME']);
@@ -76,7 +76,7 @@ class siteBuilder {
             file_exists($assets_old)) {
             rename($assets_old, $assets_dir);
         }
-        
+
         /* core */
         $core_dir = $this->config['PACKAGE_ROOT'] . 'core/components/' . strtolower($this->config['PACKAGE_NAME']);
         $core_old = $this->config['PACKAGE_ROOT'] . 'core/components/site';
@@ -85,23 +85,23 @@ class siteBuilder {
             rename($core_old, $core_dir);
         }
     }
-    
+
     public function prepareVehicle(&$builder) {
         /* create category */
         $this->modx->log(xPDO::LOG_LEVEL_INFO, 'Created category.');
         $category = $this->modx->newObject('modCategory');
         $category->set('category', $this->config['PACKAGE_NAME']);
-        
+
         $this->category_attr[xPDOTransport::UNIQUE_KEY] = 'category';
         $this->category_attr[xPDOTransport::PRESERVE_KEYS] = false;
         $this->category_attr[xPDOTransport::UPDATE_OBJECT] = true;
         $this->category_attr[xPDOTransport::RELATED_OBJECTS] = true;
-        
+
         $this->addPlugins($category);
         $this->addSnippets($category);
         $this->addTemplates($category);
         $this->addChunks($category);
-        
+
         $builder->setPackageAttributes(array(
             'site_category' => $this->config['PACKAGE_NAME'],
             'site_template_name' => $this->config['site_template_name']
@@ -111,7 +111,7 @@ class siteBuilder {
         $builder->putVehicle($vehicle);
         return $vehicle;
     }
-    
+
     public function addPlugins(&$category) {
         $this->category_attr[xPDOTransport::RELATED_OBJECT_ATTRIBUTES]['Plugins'] = array(
             xPDOTransport::PRESERVE_KEYS => false,
@@ -132,7 +132,7 @@ class siteBuilder {
             $this->modx->log(modX::LOG_LEVEL_INFO, 'Packaged in ' . count($plugins) . ' plugins.');
         }
     }
-    
+
     public function addSnippets(&$category) {
         $this->category_attr[xPDOTransport::RELATED_OBJECT_ATTRIBUTES]['Snippets'] = array(
             xPDOTransport::PRESERVE_KEYS => false,
@@ -148,7 +148,7 @@ class siteBuilder {
             $this->modx->log(modX::LOG_LEVEL_INFO, 'Packaged in ' . count($snippets) . ' snippets.');
         }
     }
-    
+
     public function addTemplates(&$category) {
         $this->category_attr[xPDOTransport::RELATED_OBJECT_ATTRIBUTES]['Templates'] = array(
             xPDOTransport::PRESERVE_KEYS => false,
@@ -166,7 +166,7 @@ class siteBuilder {
             $this->config['site_template_name'] = $first->get('templatename');
         }
     }
-    
+
     public function addChunks(&$category) {
         $this->category_attr[xPDOTransport::RELATED_OBJECT_ATTRIBUTES]['Chunks'] = array(
             xPDOTransport::PRESERVE_KEYS => false,
@@ -182,7 +182,7 @@ class siteBuilder {
             $this->modx->log(modX::LOG_LEVEL_INFO, 'Packaged in ' . count($chunks) . ' chunks.');
         }
     }
-    
+
     public function addResolvers(&$vehicle) {
         /* now pack in resolvers */
         $vehicle->resolve('file', array(
@@ -201,10 +201,10 @@ class siteBuilder {
         		$this->modx->log(modX::LOG_LEVEL_INFO, 'Could not add resolver "' . $resolver . '" to category.');
         	}
         }
-        
+
         flush();
     }
-    
+
     public function pack(&$builder) {
         /* now pack in the license file, readme and setup options */
         $builder->setPackageAttributes(array(
@@ -213,16 +213,16 @@ class siteBuilder {
         	'readme' => file_get_contents($this->config['PACKAGE_ROOT'] . 'core/components/' . strtolower($this->config['PACKAGE_NAME']) . '/docs/' . 'readme.txt'),
         ));
         $this->modx->log(modX::LOG_LEVEL_INFO, 'Added package attributes.');
-        
+
         /* zip up package */
         $this->modx->log(modX::LOG_LEVEL_INFO, 'Packing up transport package zip...');
         $builder->pack();
-        
+
         $signature = $builder->getSignature();
         if (!empty($_GET['download'])) {
         	echo '<script>document.location.href = "/core/packages/' . $signature . '.transport.zip' . '";</script>';
         }
-        
+
         $this->modx->log(modX::LOG_LEVEL_INFO, "Done.\n<br />Completed\n");
         if (!XPDO_CLI_MODE) {
         	echo '</pre>';
