@@ -1,5 +1,7 @@
 <div class="yandexcoordstv__wrapper">
-    <div id="yandexcoordstv{$tv->id}" class="yandexcoordstv__map"></div>
+    <div class="yandexcoordstv__map">
+        <div id="yandexcoordstv{$tv->id}" class="yandexcoordstv__map__inner"></div>
+    </div>
     <input
             id="tv{$tv->id}"
             name="tv{$tv->id}"
@@ -125,7 +127,6 @@
             {/literal}
             xtype: 'textfield'
             , applyTo: 'tv{$tv->id}'
-            , width: '50%'
             , enableKeyEvents: true
             , msgTarget: 'under'
             , allowBlank: {if $params.allowBlank == 1 || $params.allowBlank == 'true'}true{else}false{/if}
