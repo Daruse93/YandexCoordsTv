@@ -17,7 +17,7 @@
 <script type="text/javascript">
 
 /* API YANDEX*/
-// 
+//
 // Дождёмся загрузки API и готовности DOM.
 ymaps.ready(init);
 
@@ -49,14 +49,14 @@ function init() {
         myMap{$tv->id}.geoObjects.add(myPlacemark{$tv->id});
         getAddress(myPlacemark{$tv->id}.geometry.getCoordinates());
     }
-    
+
     //Слушаем выбор поиска
     mySearchControl.events.add('resultselect', function (e) {
         var index = e.get('index');
         var coords = mySearchControl.getResult(index)._value.geometry.getCoordinates();
         setMarker{$tv->id}(coords);
     });
-   
+
     setMarker{$tv->id} = function (coords){
             // Если метка уже создана – просто передвигаем ее.
         if (myPlacemark{$tv->id}) {
@@ -72,15 +72,25 @@ function init() {
             });
         }
         getAddress(coords);
+    };
+
+
+    //Отслеживаем событие перемещения метки
+    if (myPlacemark{$tv->id}) {
+        myPlacemark{$tv->id}.events.add("dragend", function (e) {
+            var coords = this.geometry.getCoordinates();
+            setMarker{$tv->id}(coords);
+        }, myPlacemark{$tv->id});
     }
-    
+
+
     // Слушаем клик на карте.
     myMap{$tv->id}.events.add('click', function (e) {
         var coords = e.get('coords');
         setMarker{$tv->id}(coords);
     });
-    
-    
+
+
 
     // Создание метки.
     function createPlacemark(coords) {
@@ -91,7 +101,7 @@ function init() {
             draggable: true
         });
     }
-    
+
     // Определяем адрес по координатам (обратное геокодирование).
     function getAddress(coords) {
         myPlacemark{$tv->id}.properties.set('iconCaption', 'поиск...');
@@ -105,7 +115,7 @@ function init() {
                     iconCaption: firstGeoObject.properties.get('name'),
                     balloonContent: firstGeoObject.properties.get('text')
                 });
-           $('#tv{$tv->id}').val(firstGeoObject.geometry.getCoordinates());
+            $('#tv{$tv->id}').val(coords);
         });
     }
 }
