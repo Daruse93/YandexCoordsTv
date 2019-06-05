@@ -7,3 +7,7 @@
     width: 100%;
     height: 400px;
 }
+
+.yandexcoordstv__input{
+    width: calc(100% - 10px);
+}

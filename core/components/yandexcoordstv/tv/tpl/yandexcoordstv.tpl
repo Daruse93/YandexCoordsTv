@@ -3,6 +3,7 @@
     <input
             id="tv{$tv->id}"
             name="tv{$tv->id}"
+            class="yandexcoordstv__input"
             type="text"
             value="{$tv->get('value')|escape}"
             {$style}
