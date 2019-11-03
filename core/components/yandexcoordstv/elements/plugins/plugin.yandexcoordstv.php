@@ -1,6 +1,8 @@
 <?php
 $corePath = $modx->getOption('core_path', null, MODX_CORE_PATH) . 'components/yandexcoordstv/';
 $assetsUrl = $modx->getOption('assets_url', null, MODX_CORE_PATH).'components/yandexcoordstv/';
+$yandexCoordsTvApiKey = $modx->getOption('yandex_coords_tv_api_key');
+
 switch ($modx->event->name) {
     case 'OnTVInputRenderList':
         $modx->event->output($corePath . 'tv/input/');
@@ -38,7 +40,11 @@ switch ($modx->event->name) {
         $ymapsScript .= "\n";
         $ymapsScript .= 'if(typeof ymaps == "undefined"){';
         $ymapsScript .= "\n";
-        $ymapsScript .= 'document.write(\'<script type="text/javascript" src="//api-maps.yandex.ru/2.1/?lang=ru_RU" ></\'+\'script>\');';
+        if($yandexCoordsTvApiKey){
+            $ymapsScript .= 'document.write(\'<script type="text/javascript" src="//api-maps.yandex.ru/2.1/?lang=ru_RU&apikey='.$yandexCoordsTvApiKey.'" ></\'+\'script>\');';
+        }else{
+            $ymapsScript .= 'document.write(\'<script type="text/javascript" src="//api-maps.yandex.ru/2.1/?lang=ru_RU" ></\'+\'script>\');';
+        }
         $ymapsScript .= "\n";
         $ymapsScript .= '}';
         $ymapsScript .= "\n";

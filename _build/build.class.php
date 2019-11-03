@@ -1,10 +1,11 @@
 <?php
 @ini_set('display_errors', 1);
+
 class siteBuilder {
 
     public $config = array(
-            'PACKAGE_NAME' => 'site',
-            'PACKAGE_VERSION' => '1.0.1',
+            'PACKAGE_NAME' => 'yandexcoordstv',
+            'PACKAGE_VERSION' => '1.0.2',
             'PACKAGE_RELEASE' => 'beta',
             'BUILD_RESOLVERS' => array()
         );
@@ -65,6 +66,13 @@ class siteBuilder {
                                 $this->config['PACKAGE_VERSION'],
                                 $this->config['PACKAGE_RELEASE']);
         $this->modx->log(modX::LOG_LEVEL_INFO, 'Created Transport Package.');
+
+        $builder->registerNamespace(
+            $this->config['PACKAGE_NAME'],
+                false,
+                true,
+                '{core_path}components/'.$this->config['PACKAGE_NAME'].'/'
+            );
         return $builder;
     }
 
@@ -104,7 +112,7 @@ class siteBuilder {
 
         $builder->setPackageAttributes(array(
             'site_category' => $this->config['PACKAGE_NAME'],
-            'site_template_name' => $this->config['site_template_name']
+            'site_template_name' => $this->config['site_template_name'],
         ));
         $vehicle = $builder->createVehicle($category, $this->category_attr);
         $this->addResolvers($vehicle);
@@ -211,6 +219,9 @@ class siteBuilder {
         	'changelog' => file_get_contents($this->config['PACKAGE_ROOT'] . 'core/components/' . strtolower($this->config['PACKAGE_NAME']) . '/docs/' . 'changelog.txt'),
         	'license' => file_get_contents($this->config['PACKAGE_ROOT'] . 'core/components/' . strtolower($this->config['PACKAGE_NAME']) . '/docs/' . 'license.txt'),
         	'readme' => file_get_contents($this->config['PACKAGE_ROOT'] . 'core/components/' . strtolower($this->config['PACKAGE_NAME']) . '/docs/' . 'readme.txt'),
+            'setup-options' => array(
+                'source' => $this->config['PACKAGE_ROOT'] . '_build/' . 'setup.options.php',
+            ),
         ));
         $this->modx->log(modX::LOG_LEVEL_INFO, 'Added package attributes.');
 

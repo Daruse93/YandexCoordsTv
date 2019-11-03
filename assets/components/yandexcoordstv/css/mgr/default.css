@@ -1,13 +1,13 @@
 .yandexcoordstv__wrapper{
-    max-width: 800px;
-    width: 100%;
+    position: relative;
+    width: 800px;
+    height: 400px;
 }
 
 .yandexcoordstv__map{
     width: 100%;
-    height: 400px;
-    position: relative;
-    margin: 10px 0;
+    height: 375px;
+    margin: 0px 0;
 }
 
 .yandexcoordstv__map__inner{
